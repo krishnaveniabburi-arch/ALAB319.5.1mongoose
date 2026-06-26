@@ -7,7 +7,7 @@ const router = express.Router();
 // Create a single grade entry
 router.post("/", async (req, res) => {
   let collection = await db.collection("grades");
-  let newDocument = req.body;
+  let { student_id, newDocument } = req.body;
 
   // rename fields for backwards compatibility
   if (newDocument.student_id) {
@@ -16,7 +16,7 @@ router.post("/", async (req, res) => {
   }
 
   let result = await collection.insertOne(newDocument);
-  res.send(result).status(204);
+  res.send(result).status(201);
 });
 
 // Get a single grade entry
