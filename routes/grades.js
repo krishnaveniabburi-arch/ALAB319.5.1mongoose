@@ -1,13 +1,14 @@
 import express from "express";
-import db from "../db/conn.js";
-import { ObjectId } from "mongodb";
+import mongoose from "mongoose";
+import grades from "./routes/grades.js";
+
 
 const router = express.Router();
 
 // Create a single grade entry
 router.post("/", async (req, res) => {
-  let collection = await db.collection("grades");
-  let { student_id, newDocument } = req.body;
+  const result = await grades.create(req.body);
+  res.send(result)
 
   // rename fields for backwards compatibility
   if (newDocument.student_id) {
@@ -20,13 +21,14 @@ router.post("/", async (req, res) => {
 });
 
 // Get a single grade entry
-router.get("/:id", async (req, res) => {
-  let collection = await db.collection("grades");
-  let query = { _id: new ObjectId(req.params.id) };
-  let result = await collection.findOne(query);
+router.get("/:id", async (req, res)) => {
+  router.get("/:id", async (req, res) => {
 
-  if (!result) res.send("Not found").status(404);
-  else res.send(result).status(200);
+  const result= await Grades.findById({_id:req.params.id})
+  if(!result)
+    res.send("No Object with that id...").status(404)
+  else res.json(result)
+
 });
 
 // Add a score to a grade entry
