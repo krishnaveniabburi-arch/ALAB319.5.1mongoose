@@ -67,65 +67,53 @@ router.get("/student/:id", async (req, res) => {
 // Get a learner's grade data
 
 router.get("/learner/:id", async (req, res) => {
-  let collection = await db.collection("grades");
-  let query = { learner_id: Number(req.params.id) };
+  let result = await Grades.find({student_id:Number(req.params.id)}).limit(10)
+  if(result.length === 0 ){
+    res.send("No data with that student id...").status(404);
+  }
+  else res.json(result)
   
-  // Check for class_id parameter
-  if (req.query.class) query.class_id = Number(req.query.class);
 
-  let result = await collection.find(query).toArray();
-
-  if (!result) res.send("Not found").status(404);
-  else res.send(result).status(200);
 });
 
 // Delete a learner's grade data
+
 router.delete("/learner/:id", async (req, res) => {
-  let collection = await db.collection("grades");
-  let query = { learner_id: Number(req.params.id) };
+  let result = await Grades.deleteMany({ student_id: Number(req.params.id) })
+  res.json(result);
 
-  let result = await collection.deleteOne(query);
-
-  if (!result) res.send("Not found").status(404);
-  else res.send(result).status(200);
 });
 
 // Get a class's grade data
-router.get("/class/:id", async (req, res) => {
-  let collection = await db.collection("grades");
-  let query = { class_id: Number(req.params.id) };
 
-  // Check for learner_id parameter
-  if (req.query.learner) query.learner_id = Number(req.query.learner);
+ router.get("/class/:id", async (req, res) => {
+  let result = await Grades.find({ class_id: Number(req.params.id) }).limit(
+    10,
+  );
+  if (result.length === 0) {
+    res.send("No data with that class id...").status(404);
+  } else res.json(result);
 
-  let result = await collection.find(query).toArray();
-
-  if (!result) res.send("Not found").status(404);
-  else res.send(result).status(200);
 });
 
 // Update a class id
 router.patch("/class/:id", async (req, res) => {
-  let collection = await db.collection("grades");
-  let query = { class_id: Number(req.params.id) };
+  let result = await Grades.findByIdAndUpdate(
+    req.params.id,
+    { $set: { class_id: req.body.class_id } },
+    { returnDocument: "after" },
+  );
+  res.json(result)
 
-  let result = await collection.updateMany(query, {
-    $set: { class_id: req.body.class_id }
   });
-
-  if (!result) res.send("Not found").status(404);
-  else res.send(result).status(200);
-});
 
 // Delete a class
 router.delete("/class/:id", async (req, res) => {
-  let collection = await db.collection("grades");
-  let query = { class_id: Number(req.params.id) };
+  let result = await Grades.deleteMany({class_id:req.params.id})
+  if (result.length === 0) {
+    res.send("No data with that class id...").status(404);
+  } else res.json(result);
 
-  let result = await collection.deleteMany(query);
-
-  if (!result) res.send("Not found").status(404);
-  else res.send(result).status(200);
 });
 
 export default router;
